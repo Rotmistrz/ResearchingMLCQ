@@ -19,12 +19,13 @@ import java.util.concurrent.TimeUnit;
 public class ResearchingMLCQProgram {
     public static void main(String[] args) {
         String filename = "./resources/MLCQCodeSmellSamples-32.csv";
-        String resultsDir = "./results/";
+        String resultsDir = "./results";
 
-        String resultsCodeDir = resultsDir + "code/";
+        String resultsCodeDir = resultsDir + "/code";
+        String resultsReviewsDir = resultsDir + "/csv";
 
         try {
-            AnalyzerMLCQ analyzer = new AnalyzerMLCQ(filename, "./logs/", ';');
+            AnalyzerMLCQ analyzer = new AnalyzerMLCQ(filename, "./logs", ';');
 
             List<CodeReview> reviews = analyzer.prepareReviews(filename);
 
@@ -37,8 +38,10 @@ public class ResearchingMLCQProgram {
             if (expectedFiles == actualFiles) {
                 System.out.println("Receiving files completed successfully!");
             } else {
-                System.out.println("Receiving files failed. " + (expectedFiles - actualFiles) + " reviews have not been processed successfully.");
+                System.out.println("Receiving files failed. Received " + actualFiles + " of " + expectedFiles + " reviews.");
             }
+
+            analyzer.saveCodeReviews(resultsReviewsDir, reachableReviews);
         } catch (Exception e) {
             System.out.println("Błąd: " + e.getMessage());
         }

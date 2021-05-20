@@ -1,4 +1,8 @@
 import com.opencsv.bean.CsvToBeanBuilder;
+import com.opencsv.bean.StatefulBeanToCsv;
+import com.opencsv.bean.StatefulBeanToCsvBuilder;
+import com.opencsv.exceptions.CsvDataTypeMismatchException;
+import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -50,14 +54,16 @@ public class AnalyzerMLCQ {
         int actualFiles = 0;
 
         for (CodeReview review : reviews) {
-            if (!receivedSamples.contains(review.sampleID)) {
+            if (receivedSamples.contains(review.getSampleID())) {
+                reachableReviews.add(review);
+            } else {
                 expectedFiles++;
 
-                document = getDocument(review.link, attemptsNumber);
+                document = getDocument(review.getLink(), attemptsNumber);
 
                 if (document != null) {
                     lines = document.select(".type-java .js-file-line");
-                    sampleOutputPath = outputDir + review.sampleID + ".java";
+                    sampleOutputPath = outputDir + "/" + review.getSampleID() + ".java";
 
                     BufferedWriter writer = new BufferedWriter(new FileWriter(sampleOutputPath, false));
 
@@ -67,26 +73,23 @@ public class AnalyzerMLCQ {
 
                     writer.close();
 
-                    receivedSamples.add(review.sampleID);
-
+                    receivedSamples.add(review.getSampleID());
                     reachableReviews.add(review);
-
                     actualFiles++;
 
                     // console logs
-                    System.out.println("Sample " + review.sampleID + " saved!");
+                    System.out.println("Sample " + review.getSampleID() + " saved! " + review.codeName);
                 } else {
-                    failures.put(review.sampleID, review.link);
-
-                    failureLogs.add(review.reviewID + ", " + review.sampleID + ", " + review.codeSmell + ", " + review.severity + ", " + review.link);
+                    failures.put(review.getSampleID(), review.getLink());
+                    failureLogs.add(review.getReviewID() + ", " + review.getSampleID() + ", " + review.getCodeSmell() + ", " + review.getSeverity() + ", " + review.getLink());
 
                     // console logs
-                    System.out.println(review.reviewID + ", " + review.sampleID + ": problem with receiving the code.");
+                    System.out.println(review.getReviewID() + ", " + review.getSampleID() + ": problem with receiving the code.");
                 }
             }
         }
 
-        String logsPath = this.getLogsDir() + this.getReceivingSamplesLogsFilename();
+        String logsPath = this.getLogsDir() + "/" + this.getReceivingSamplesLogsFilename();
 
         BufferedWriter logsWriter = new BufferedWriter(new FileWriter(logsPath, false));
 
@@ -111,6 +114,22 @@ public class AnalyzerMLCQ {
         Date date = new Date();
 
         return "logs-receiving-samples-" + formatter.format(date) + ".txt";
+    }
+
+    public static String getFinalCodeReviewsFilename() {
+        return "final-code-reviews.csv";
+    }
+
+    public void saveCodeReviews(String outputDir, List<CodeReview> reviews) throws IOException, CsvRequiredFieldEmptyException, CsvDataTypeMismatchException {
+        String outputPath = outputDir + "/" + getFinalCodeReviewsFilename();
+
+        Writer writer  = new FileWriter(outputPath);
+
+        StatefulBeanToCsv sbc = new StatefulBeanToCsvBuilder(writer)
+                .withSeparator(this.getCsvSeparator())
+                .build();
+
+        sbc.write(reviews);
     }
 
     public static Document getDocument(String url, int maxAttempts) throws InterruptedException {

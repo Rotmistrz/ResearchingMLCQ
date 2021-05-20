@@ -2,6 +2,10 @@ import com.opencsv.bean.CsvBindByPosition;
 import com.opencsv.bean.CsvBindByName;
 
 public class CodeReview {
+    public CodeReview() {
+
+    }
+
     @CsvBindByName(column = "id")
     public int reviewID;
 
@@ -46,6 +50,66 @@ public class CodeReview {
 
     @CsvBindByName(column = "is_from_industry_relevant_project")
     public String isFromIndustryRelevantProject;
+
+    public String getCodeName() {
+        return this.codeName;
+    }
+
+    public String getCommitHash() {
+        return this.codeName;
+    }
+
+    public int getEndLine() {
+        return this.endLine;
+    }
+
+    public int getReviewID() {
+        return reviewID;
+    }
+
+    public int getReviewerID() {
+        return reviewerID;
+    }
+
+    public int getSampleID() {
+        return sampleID;
+    }
+
+    public String getCodeSmell() {
+        return codeSmell;
+    }
+
+    public String getSeverity() {
+        return severity;
+    }
+
+    public String getTimestamp() {
+        return timestamp;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public String getRepository() {
+        return repository;
+    }
+
+    public String getPath() {
+        return path;
+    }
+
+    public int getStartLine() {
+        return startLine;
+    }
+
+    public String getLink() {
+        return link;
+    }
+
+    public String getIsFromIndustryRelevantProject() {
+        return isFromIndustryRelevantProject;
+    }
 
     //  getters, setters, toString
 }
