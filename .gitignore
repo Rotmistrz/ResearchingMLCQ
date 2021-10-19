@@ -1,4 +1,5 @@
 /.idea/
 /results
 /results-all
-/logs/
+/logs
+/out
